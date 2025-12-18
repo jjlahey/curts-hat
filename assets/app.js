@@ -4,6 +4,7 @@
   let resultsEl;
   let countEl;
   let live;
+  let resultsCard;
 
   let btnDraw;
   let btnReset;
@@ -59,9 +60,14 @@
     btnReset.disabled = !(hasNames || state.locked || hasInput);
     btnAdd.disabled = state.locked;
     const hasResults = state.assigned.length > 0;
+    if (resultsCard) resultsCard.hidden = !hasResults;
     btnCopy.disabled = !hasResults;
     btnCsv.disabled = !hasResults;
     btnPrint.disabled = !hasResults;
+  }
+
+  function getAssignedSorted() {
+    return [...state.assigned].sort((a, b) => a.number - b.number);
   }
 
   function clearResultsIfAny() {
@@ -92,6 +98,38 @@
     setButtons();
     live.textContent = `${parsed.length} ${parsed.length === 1 ? 'name' : 'names'} added.`;
     nameInput.focus();
+  }
+
+  function commitDelimitedNamesFromInput() {
+    if (state.locked) return;
+    const raw = (nameInput.value ?? '');
+    if (!raw) {
+      setButtons();
+      return;
+    }
+
+    const parts = raw.split(/[,;\r\n]+/);
+    if (parts.length <= 1) {
+      setButtons();
+      return;
+    }
+
+    const endsWithDelimiter = /[,;\r\n]\s*$/.test(raw);
+    let remainder = '';
+    if (!endsWithDelimiter) {
+      remainder = parts.pop() ?? '';
+    }
+
+    const parsed = normalizeNames(parts);
+    if (parsed.length > 0) {
+      state.names.push(...parsed);
+      clearResultsIfAny();
+      renderChips();
+      live.textContent = `${parsed.length} ${parsed.length === 1 ? 'name' : 'names'} added.`;
+    }
+
+    nameInput.value = remainder.trimStart();
+    setButtons();
   }
 
   function removeNameAt(index) {
@@ -129,7 +167,7 @@
     resultsEl.replaceChildren();
     const frag = document.createDocumentFragment();
     let delay = 0;
-    for (const { name, number } of state.assigned) {
+    for (const { name, number } of getAssignedSorted()) {
       const li = document.createElement('li');
       li.className = 'result';
       li.style.animationDelay = `${delay}ms`;
@@ -159,7 +197,7 @@
   }
 
   async function copyToClipboard() {
-    const text = state.assigned.map(({ name, number }) => `${name},${number}`).join('\n');
+    const text = getAssignedSorted().map(({ name, number }) => `${number}.) ${name}`).join('\n');
     try {
       await navigator.clipboard.writeText(text);
       live.textContent = 'Copied to clipboard';
@@ -174,7 +212,7 @@
   }
 
   function downloadCsv() {
-    const lines = [['Name','Number'], ...state.assigned.map(({name, number}) => [name, number])];
+    const lines = [['Name','Number'], ...getAssignedSorted().map(({name, number}) => [name, number])];
     const csv = lines.map(r => r.map(v => `"${String(v).replaceAll('"','""')}"`).join(',')).join('\n');
     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -190,6 +228,7 @@
     resultsEl = document.getElementById('results');
     countEl = document.getElementById('count');
     live = document.getElementById('live');
+    resultsCard = document.querySelector('.results-card');
 
     btnDraw = document.getElementById('btn-draw');
     btnReset = document.getElementById('btn-reset');
@@ -198,16 +237,25 @@
     btnCsv = document.getElementById('btn-csv');
     btnPrint = document.getElementById('btn-print');
 
-    if (!nameInput || !chips || !resultsEl || !countEl || !live || !btnDraw || !btnReset || !btnAdd || !btnCopy || !btnCsv || !btnPrint) {
+    if (!nameInput || !chips || !resultsEl || !countEl || !live || !resultsCard || !btnDraw || !btnReset || !btnAdd || !btnCopy || !btnCsv || !btnPrint) {
       return;
     }
 
     nameInput.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-      addNamesFromInput();
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addNamesFromInput();
+        return;
+      }
+      if (e.key === ',' || e.key === ';') {
+        e.preventDefault();
+        addNamesFromInput();
+      }
     });
-    nameInput.addEventListener('input', setButtons);
+    nameInput.addEventListener('input', () => {
+      commitDelimitedNamesFromInput();
+      setButtons();
+    });
     btnAdd.addEventListener('click', addNamesFromInput);
     btnDraw.addEventListener('click', draw);
     btnReset.addEventListener('click', reset);

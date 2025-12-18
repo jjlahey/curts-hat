@@ -12,11 +12,7 @@
   </header>
 
   <main class="container">
-    <section class="card input-card" aria-labelledby="names-label">
-      <div class="card-header">
-        <h2 id="names-label">Add names</h2>
-        <div class="hint" aria-hidden="true">Type a name and press Enter (commas OK)</div>
-      </div>
+    <section class="card input-card" aria-label="Add names">
       <div class="stack">
         <div class="add-row" role="group" aria-label="Add a name">
           <input id="name-input" class="name-input" type="text" inputmode="text" autocomplete="off" placeholder="Add a name…" />
@@ -25,10 +21,12 @@
         </div>
       </div>
       <div class="chips" id="chip-list" aria-live="polite" aria-atomic="false"></div>
-      <button id="btn-draw" class="btn primary btn-draw" type="button" disabled>Draw</button>
+      <div class="draw-row">
+        <button id="btn-draw" class="btn primary btn-draw" type="button" disabled>Draw!</button>
+      </div>
     </section>
 
-    <section class="card results-card" aria-labelledby="results-label">
+    <section class="card results-card" aria-labelledby="results-label" hidden>
       <div class="card-header">
         <div class="results-header">
           <h2 id="results-label">Results</h2>
