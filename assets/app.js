@@ -1,15 +1,15 @@
 (() => {
-  const ta = document.getElementById('names');
-  const chips = document.getElementById('chip-list');
-  const resultsEl = document.getElementById('results');
-  const countEl = document.getElementById('count');
-  const live = document.getElementById('live');
+  let ta;
+  let chips;
+  let resultsEl;
+  let countEl;
+  let live;
 
-  const btnDraw = document.getElementById('btn-draw');
-  const btnReset = document.getElementById('btn-reset');
-  const btnCopy = document.getElementById('btn-copy');
-  const btnCsv = document.getElementById('btn-csv');
-  const btnPrint = document.getElementById('btn-print');
+  let btnDraw;
+  let btnReset;
+  let btnCopy;
+  let btnCsv;
+  let btnPrint;
 
   const state = { names: [], assigned: [], locked: false };
 
@@ -36,7 +36,7 @@
   function setButtons() {
     const hasNames = state.names.length > 0;
     btnDraw.disabled = !hasNames || state.locked;
-    btnReset.disabled = !hasNames && !state.locked ? true : false;
+    btnReset.disabled = !(hasNames || state.locked);
     const hasResults = state.assigned.length > 0;
     btnCopy.disabled = !hasResults;
     btnCsv.disabled = !hasResults;
@@ -130,14 +130,35 @@
   }
 
   function init() {
+    ta = document.getElementById('names');
+    chips = document.getElementById('chip-list');
+    resultsEl = document.getElementById('results');
+    countEl = document.getElementById('count');
+    live = document.getElementById('live');
+
+    btnDraw = document.getElementById('btn-draw');
+    btnReset = document.getElementById('btn-reset');
+    btnCopy = document.getElementById('btn-copy');
+    btnCsv = document.getElementById('btn-csv');
+    btnPrint = document.getElementById('btn-print');
+
+    if (!ta || !chips || !resultsEl || !countEl || !live || !btnDraw || !btnReset || !btnCopy || !btnCsv || !btnPrint) {
+      return;
+    }
+
     ta.addEventListener('input', handleInput);
     btnDraw.addEventListener('click', draw);
     btnReset.addEventListener('click', reset);
     btnCopy.addEventListener('click', copyToClipboard);
     btnCsv.addEventListener('click', downloadCsv);
     btnPrint.addEventListener('click', () => window.print());
+    handleInput();
     setButtons();
   }
 
-  document.addEventListener('DOMContentLoaded', init);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
