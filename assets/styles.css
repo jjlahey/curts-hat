@@ -1,0 +1,72 @@
+/* CSS Variables + Theme */
+:root {
+  --bg: #0b0c10;        /* overridden in light */
+  --card: #12141a;
+  --text: #e5e7eb;
+  --muted: #9aa3af;
+  --accent: #6ee7b7;
+  --border: #1f2430;
+  --shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --accent: #0ea5e9;
+    --border: #e5e7eb;
+    --shadow: 0 8px 24px rgba(2,6,23,.08);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* Base */
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 4rem; display: grid; gap: 1rem; }
+.site-header { position: sticky; top: 0; backdrop-filter: saturate(1.2) blur(8px); background: color-mix(in oklab, var(--bg) 85%, transparent); border-bottom: 1px solid var(--border); z-index: 10; }
+.site-header h1 { margin: 0; padding: 1rem; font-size: clamp(1.25rem, 2.5vw, 1.75rem); text-align: center; }
+
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 1rem; }
+.card-header { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; margin-bottom: .75rem; }
+.hint { color: var(--muted); font-size: .9rem; }
+
+/* Inputs */
+.names-textarea { width: 100%; resize: vertical; min-height: 120px; font-size: 1rem; line-height: 1.5; padding: .75rem; border-radius: 12px; border: 1px solid var(--border); background: transparent; color: inherit; box-shadow: inset 0 1px 0 rgba(255,255,255,.02); }
+.names-textarea:focus { outline: none; border-color: color-mix(in oklab, var(--accent) 60%, var(--border)); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent); }
+
+.toolbar { display: flex; gap: .5rem; align-items: center; margin-top: .75rem; }
+.spacer { flex: 1; }
+.btn { appearance: none; border: 1px solid var(--border); background: transparent; color: inherit; padding: .6rem .9rem; border-radius: 12px; font-weight: 600; cursor: pointer; transition: transform .12s ease, background .2s ease, border-color .2s ease; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 25%, transparent); }
+.btn.primary { background: color-mix(in oklab, var(--accent) 15%, transparent); border-color: color-mix(in oklab, var(--accent) 50%, var(--border)); }
+
+/* Chips */
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; max-height: 200px; overflow: auto; padding: .25rem; border-radius: 12px; border: 1px dashed var(--border); }
+.chips .chip { padding: .35rem .6rem; border-radius: 999px; border: 1px solid var(--border); font-size: .9rem; }
+
+/* Results */
+.count { color: var(--muted); font-size: .95rem; }
+.results { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: .75rem; }
+.result { display: flex; align-items: center; gap: .75rem; padding: .75rem; border: 1px solid var(--border); border-radius: 14px; transform: translateY(6px); opacity: 0; animation: pop .35s ease forwards; background: linear-gradient(180deg, color-mix(in oklab, var(--card) 92%, transparent), color-mix(in oklab, var(--card) 98%, transparent)); }
+.result .badge { min-width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; border: 1px solid var(--border); background: color-mix(in oklab, var(--accent) 25%, transparent); }
+.result .name { font-weight: 600; overflow-wrap: anywhere; }
+@keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* Print */
+@media print {
+  .site-header, .input-card .stack, .hint, .toolbar { display: none !important; }
+  .card { box-shadow: none; border: none; }
+  .results { grid-template-columns: 1fr 1fr; gap: .25rem; }
+  body { background: white; color: black; }
+}
+
+/* A11y */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
