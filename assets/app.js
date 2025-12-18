@@ -230,6 +230,9 @@
     live = document.getElementById('live');
     resultsCard = document.querySelector('.results-card');
 
+    const yearEl = document.getElementById('year');
+    if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+
     btnDraw = document.getElementById('btn-draw');
     btnReset = document.getElementById('btn-reset');
     btnAdd = document.getElementById('btn-add');
