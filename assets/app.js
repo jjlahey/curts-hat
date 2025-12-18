@@ -43,7 +43,7 @@
       remove.setAttribute('aria-label', `Remove ${name}`);
       remove.textContent = '×';
       remove.addEventListener('click', () => removeNameAt(index));
-      remove.disabled = state.locked;
+      remove.disabled = false;
 
       el.append(label, remove);
       frag.appendChild(el);
@@ -56,7 +56,7 @@
   function setButtons() {
     const hasNames = state.names.length > 0;
     const hasInput = (nameInput?.value ?? '').trim().length > 0;
-    btnDraw.disabled = !hasNames || state.locked;
+    btnDraw.disabled = !hasNames;
     btnReset.disabled = !(hasNames || state.locked || hasInput);
     btnAdd.disabled = state.locked;
     const hasResults = state.assigned.length > 0;
@@ -133,10 +133,8 @@
   }
 
   function removeNameAt(index) {
-    if (state.locked) return;
     if (index < 0 || index >= state.names.length) return;
     state.names.splice(index, 1);
-    clearResultsIfAny();
     renderChips();
     setButtons();
   }
