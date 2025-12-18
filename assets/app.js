@@ -1,5 +1,5 @@
 (() => {
-  let ta;
+  let nameInput;
   let chips;
   let resultsEl;
   let countEl;
@@ -7,6 +7,7 @@
 
   let btnDraw;
   let btnReset;
+  let btnAdd;
   let btnCopy;
   let btnCsv;
   let btnPrint;
@@ -20,35 +21,85 @@
       .filter(Boolean);
   }
 
+  function normalizeNames(names) {
+    return names.map(n => n.trim()).filter(Boolean);
+  }
+
   function renderChips() {
     chips.replaceChildren();
     const frag = document.createDocumentFragment();
-    for (const n of state.names) {
+    state.names.forEach((name, index) => {
       const el = document.createElement('span');
       el.className = 'chip';
-      el.textContent = n;
+
+      const label = document.createElement('span');
+      label.className = 'chip-label';
+      label.textContent = name;
+
+      const remove = document.createElement('button');
+      remove.className = 'chip-remove';
+      remove.type = 'button';
+      remove.setAttribute('aria-label', `Remove ${name}`);
+      remove.textContent = '×';
+      remove.addEventListener('click', () => removeNameAt(index));
+      remove.disabled = state.locked;
+
+      el.append(label, remove);
       frag.appendChild(el);
     }
+    );
     chips.appendChild(frag);
     countEl.textContent = `${state.names.length} ${state.names.length === 1 ? 'name' : 'names'}`;
   }
 
   function setButtons() {
     const hasNames = state.names.length > 0;
+    const hasInput = (nameInput?.value ?? '').trim().length > 0;
     btnDraw.disabled = !hasNames || state.locked;
-    btnReset.disabled = !(hasNames || state.locked);
+    btnReset.disabled = !(hasNames || state.locked || hasInput);
+    btnAdd.disabled = state.locked;
     const hasResults = state.assigned.length > 0;
     btnCopy.disabled = !hasResults;
     btnCsv.disabled = !hasResults;
     btnPrint.disabled = !hasResults;
   }
 
-  function handleInput() {
-    if (state.locked) return; // do not mutate after draw
-    state.names = parseNames(ta.value);
-    renderChips();
-    resultsEl.replaceChildren();
+  function clearResultsIfAny() {
+    if (state.assigned.length === 0) return;
     state.assigned = [];
+    resultsEl.replaceChildren();
+  }
+
+  function addNamesFromInput() {
+    if (state.locked) return;
+    const raw = (nameInput.value ?? '').trim();
+    if (!raw) {
+      setButtons();
+      return;
+    }
+
+    const parsed = normalizeNames(parseNames(raw));
+    if (parsed.length === 0) {
+      nameInput.value = '';
+      setButtons();
+      return;
+    }
+
+    state.names.push(...parsed);
+    nameInput.value = '';
+    clearResultsIfAny();
+    renderChips();
+    setButtons();
+    live.textContent = `${parsed.length} ${parsed.length === 1 ? 'name' : 'names'} added.`;
+    nameInput.focus();
+  }
+
+  function removeNameAt(index) {
+    if (state.locked) return;
+    if (index < 0 || index >= state.names.length) return;
+    state.names.splice(index, 1);
+    clearResultsIfAny();
+    renderChips();
     setButtons();
   }
 
@@ -99,6 +150,7 @@
     state.locked = false;
     state.assigned = [];
     resultsEl.replaceChildren();
+    if (nameInput) nameInput.value = '';
     setButtons();
     live.textContent = 'Reset complete';
   }
@@ -130,7 +182,7 @@
   }
 
   function init() {
-    ta = document.getElementById('names');
+    nameInput = document.getElementById('name-input');
     chips = document.getElementById('chip-list');
     resultsEl = document.getElementById('results');
     countEl = document.getElementById('count');
@@ -138,21 +190,29 @@
 
     btnDraw = document.getElementById('btn-draw');
     btnReset = document.getElementById('btn-reset');
+    btnAdd = document.getElementById('btn-add');
     btnCopy = document.getElementById('btn-copy');
     btnCsv = document.getElementById('btn-csv');
     btnPrint = document.getElementById('btn-print');
 
-    if (!ta || !chips || !resultsEl || !countEl || !live || !btnDraw || !btnReset || !btnCopy || !btnCsv || !btnPrint) {
+    if (!nameInput || !chips || !resultsEl || !countEl || !live || !btnDraw || !btnReset || !btnAdd || !btnCopy || !btnCsv || !btnPrint) {
       return;
     }
 
-    ta.addEventListener('input', handleInput);
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      addNamesFromInput();
+    });
+    nameInput.addEventListener('input', setButtons);
+    btnAdd.addEventListener('click', addNamesFromInput);
     btnDraw.addEventListener('click', draw);
     btnReset.addEventListener('click', reset);
     btnCopy.addEventListener('click', copyToClipboard);
     btnCsv.addEventListener('click', downloadCsv);
     btnPrint.addEventListener('click', () => window.print());
-    handleInput();
+
+    renderChips();
     setButtons();
   }
 

@@ -15,26 +15,30 @@
     <section class="card input-card" aria-labelledby="names-label">
       <div class="card-header">
         <h2 id="names-label">Add names</h2>
-        <div class="hint" aria-hidden="true">Paste or type — one per line (commas OK)</div>
+        <div class="hint" aria-hidden="true">Type a name and press Enter (commas OK)</div>
       </div>
       <div class="stack">
-        <textarea id="names" class="names-textarea" rows="6" placeholder="Add names…"></textarea>
-        <div class="toolbar">
-          <button id="btn-draw" class="btn primary" disabled>Draw</button>
-          <button id="btn-reset" class="btn" disabled>Reset</button>
-          <div class="spacer"></div>
-          <button id="btn-copy" class="btn" disabled>Copy</button>
-          <button id="btn-csv" class="btn" disabled>CSV</button>
-          <button id="btn-print" class="btn" disabled>Print</button>
+        <div class="add-row" role="group" aria-label="Add a name">
+          <input id="name-input" class="name-input" type="text" inputmode="text" autocomplete="off" placeholder="Add a name…" />
+          <button id="btn-add" class="btn icon" type="button" aria-label="Add name">+</button>
+          <button id="btn-reset" class="btn" type="button" disabled>Reset</button>
         </div>
       </div>
       <div class="chips" id="chip-list" aria-live="polite" aria-atomic="false"></div>
+      <button id="btn-draw" class="btn primary btn-draw" type="button" disabled>Draw</button>
     </section>
 
     <section class="card results-card" aria-labelledby="results-label">
       <div class="card-header">
-        <h2 id="results-label">Results</h2>
-        <div id="count" class="count">0 names</div>
+        <div class="results-header">
+          <h2 id="results-label">Results</h2>
+          <div id="count" class="count">0 names</div>
+        </div>
+        <div class="toolbar results-toolbar" aria-label="Export results">
+          <button id="btn-copy" class="btn" type="button" disabled>Copy</button>
+          <button id="btn-csv" class="btn" type="button" disabled>CSV</button>
+          <button id="btn-print" class="btn" type="button" disabled>Print</button>
+        </div>
       </div>
       <ol id="results" class="results" aria-live="polite" aria-atomic="true"></ol>
     </section>
