@@ -148,11 +148,14 @@
 
   function reset() {
     state.locked = false;
+    state.names = [];
     state.assigned = [];
     resultsEl.replaceChildren();
     if (nameInput) nameInput.value = '';
+    renderChips();
     setButtons();
     live.textContent = 'Reset complete';
+    nameInput?.focus();
   }
 
   async function copyToClipboard() {
