@@ -1,0 +1,47 @@
+# curts-hat (static site)
+# NOTE: This file applies only on Apache with AllowOverride enabled.
+
+# -------------------------------------------------------------------
+# Basic defaults
+# -------------------------------------------------------------------
+Options -Indexes
+DirectoryIndex index.html
+
+# Force UTF-8 where possible
+AddDefaultCharset utf-8
+
+# Correct MIME types (some hosts mis-serve .js)
+<IfModule mod_mime.c>
+  AddType text/css .css
+  AddType application/javascript .js
+  AddType application/json .json
+  AddType image/svg+xml .svg
+</IfModule>
+
+# -------------------------------------------------------------------
+# Caching
+# - Keep HTML fresh (so new cache-buster URLs get picked up)
+# - Cache assets aggressively; you’re versioning them via ?v=…
+# -------------------------------------------------------------------
+<IfModule mod_headers.c>
+  # HTML: always revalidate
+  <FilesMatch "\.(html?)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+
+  # Static assets: cache long, safe because URLs change with ?v=...
+  <FilesMatch "\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # Basic security hardening (safe for a static site)
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# -------------------------------------------------------------------
+# Compression
+# -------------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json image/svg+xml
+</IfModule>
